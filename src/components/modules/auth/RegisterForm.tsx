@@ -1,58 +1,44 @@
-import React, { useEffect, useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { Center, Input } from '@chakra-ui/react';
+import { Button, Center, FormControl, FormLabel, Input, InputGroup, InputRightElement } from "@chakra-ui/react";
+import axios from "axios";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import toast from "react-hot-toast";
 import Cookies from "js-cookie";
-import {
-    FormControl,
-    FormLabel,
-    InputRightElement,
-    InputGroup,
-    Button
-  } from '@chakra-ui/react';
-import axios from 'axios';
-import { toast } from "react-hot-toast";
-import { useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation'
 
-export default function LoginForm (){
-    const router = useRouter()
-    const [show, setShow] = useState(false)
-    const handleClick = () => setShow(!show)
+export default function RegisterForm (){
+    const router = useRouter();
+
     const {
         handleSubmit,
         register,
         formState: { errors, isSubmitting },
       } = useForm()
-        
+    
+    const [show, setShow] = useState(false)
+    const handleClick = () => setShow(!show)
+
     async function onSubmit(values: any) {
-        let response: any
         const data = JSON.stringify(values);
         const headers = {
             "Content-Type": "application/json",
           };
-        const postLogin = axios.post(`${process.env.NEXT_PUBLIC_HOST}/auth/login`, data, { headers })
+        const postRegister = axios.post(`${process.env.NEXT_PUBLIC_HOST}`, data, { headers })
 
-        toast.promise(postLogin, {
+        toast.promise(postRegister, {
             loading: "Loading...",
-            success: "Welcome back! You have successfully logged in",
+            success: "Your account is successfully registered",
             error: (err) => err.response.data.message,
           })
         
-        await postLogin
+        await postRegister
         .then((res) => {
-            response = res
-            Cookies.set("token", res.data.token)
-            router.push("/")
+            router.replace("/auth/login")
         })
         .catch((err) => {console.error(err)})
     }
-
-    useEffect(() => {
-        if (Cookies.get('token')) {
-            router.push("/")
-        }
-    }, [])
-        
-    return (
+    
+    return(
         <form onSubmit={handleSubmit(onSubmit)}>
             <FormControl className='my-2' isRequired>
                 <FormLabel>Username</FormLabel>
@@ -60,6 +46,14 @@ export default function LoginForm (){
                         placeholder='Username'
                         id='username'
                         {...register('username')}
+                    />
+            </FormControl>
+            <FormControl className='my-2' isRequired>
+                <FormLabel>Name</FormLabel>
+                    <Input
+                        placeholder='Name'
+                        id='name'
+                        {...register('name')}
                     />
             </FormControl>
             <FormControl className='my-2' isRequired>
@@ -79,11 +73,12 @@ export default function LoginForm (){
                     </InputRightElement>
                 </InputGroup>
             </FormControl>
-            <Center className='mb-3'>
+            <Center className="mb-3">
                 <Button variant='solid' colorScheme="teal" type='submit' isLoading={isSubmitting}>
-                    Login
+                    Register
                 </Button>
             </Center>
         </form>
     )
+
 }
