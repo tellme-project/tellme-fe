@@ -14,42 +14,17 @@ import { CreatePostForm } from "@/components/modules/post/CreatePostForm";
 
 
 export default function Home() {
-  const token = Cookies.get('token');
-  const [user, setUser] = useState<User>();
   const [fess, setFess] = useState<Post[]>();
   const [loading, setLoading] = useState(true);
-  const { isOpen, onOpen, onClose } = useDisclosure()
-
-  const fetchUser = async () => {
-    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-    const getUser = axios.get('http://localhost:3001/auth/profile')
-
-    await getUser
-    .then((res) => {
-      setUser({
-        username: res.data.username,
-        name: res.data.name
-      })
-    })
-    .catch((err) => {
-      toast.error(err)
-    }) 
-  }
+  const router = useRouter()
 
   useEffect(() => {
-    if (!token) {
-      setUser(undefined)
-    } else{
-      fetchUser();
-    }
-  }, [])
-
-  useEffect(() => {
+    console.log(process.env.NEXT_PUBLIC_TEST)
     getContent()
   }, [])
 
   const getContent = () => {
-      axios.get("http://localhost:3001/posts/fess")
+      axios.get(`${process.env.NEXT_PUBLIC_HOST}/posts/fess`)
       .then((res) => {
         setLoading(false)
         setFess(res.data)
@@ -93,14 +68,13 @@ export default function Home() {
           </div>
         )
       }
-      
     }
   }
   
   return (
     <>
-    <Navbar username={user?.username}/>
-    <main className="flex">
+    <Navbar/>
+    <div className="flex">
       <div>
         {showContent()}
       </div>
@@ -113,20 +87,10 @@ export default function Home() {
           size='lg'
           icon={<AddIcon />}
           className="float-right mx-4 my-4"
-          onClick={onOpen}
+          onClick={() => {router.push("/post/create")}}
         />
       </div>
-      <Modal isOpen={isOpen} onClose={onClose}>
-        <ModalOverlay />
-        <ModalContent>
-          <ModalHeader>Create New Post</ModalHeader>
-          <ModalCloseButton />
-          <ModalBody p={4}>
-            <CreatePostForm username={user?.username}/>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-    </main>
+    </div>
     </>
   )
 }

@@ -1,4 +1,4 @@
-import { Button, Center, Checkbox, FormControl, FormLabel, Input, Textarea } from "@chakra-ui/react"
+import { Button, Center, Checkbox, FormControl, FormLabel, Input, Radio, RadioGroup, Stack, Textarea } from "@chakra-ui/react"
 import { useState } from "react"
 import { useForm } from "react-hook-form"
 import { CreatePostProps } from "./interface"
@@ -12,17 +12,13 @@ export const CreatePostForm: React.FC<CreatePostProps> = ({
 }) => {
     const token = Cookies.get("token");
     const router = useRouter()
-    const [anonymousSender, setAnonymousSender] = useState(false);
-    const [anonymousReceiver, setAnonymousReceiver] = useState(false);
+    const [anonymousSender, setAnonymousSender] = useState("true");
+    const [anonymousReceiver, setAnonymousReceiver] = useState("true");
     const [content, setContent] = useState("")
-    const [from, setFrom] = useState((username)? username: "")
     const [to, setTo] = useState("")
 
     const handleContentChange = (e: any) => {
         setContent(e.target.value)
-    }
-    const handleSenderChange = (e: any) => {
-        setFrom(e.target.value)
     }
     const handleReceiverChange = (e: any) => {
         setTo(e.target.value)
@@ -30,7 +26,7 @@ export const CreatePostForm: React.FC<CreatePostProps> = ({
 
     const handleFormSubmit = async (e: any) => {
         e.preventDefault();
-        if (to == "" && anonymousReceiver == false){
+        if (to == "" && anonymousReceiver == "false"){
             toast.error("Enter the username of the receiver")
         } else {
             const headers = {
@@ -38,15 +34,16 @@ export const CreatePostForm: React.FC<CreatePostProps> = ({
             };
             const data = JSON.stringify({
                 content: content,
-                from: (anonymousSender)? null: from,
-                to: (anonymousReceiver)? null: to
+                from: (anonymousSender == "true")? null: username,
+                to: (anonymousReceiver == "true")? null: to
             })
+            console.log(data)
             let postData;
             if (username == undefined) {
-                postData = axios.post('http://localhost:3001/posts/anonymous', data, { headers });
+                postData = axios.post(`${process.env.NEXT_PUBLIC_HOST}/posts/anonymous`, data, { headers });
             } else {
                 axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
-                postData = axios.post('http://localhost:3001/posts', data, { headers });
+                postData = axios.post(`${process.env.NEXT_PUBLIC_HOST}/posts`, data, { headers });
             }
             toast.promise(postData, {
                 loading: "Sending post...",
@@ -56,8 +53,8 @@ export const CreatePostForm: React.FC<CreatePostProps> = ({
 
             await postData
                 .then((res) => {
-                    console.log(res);
-                    //todo: refresh page after filling modal router.push("")
+                    console.log("Success")
+                    router.push("/")
                 })
                 .catch((err) => {console.log(err.message)})
         }
@@ -80,32 +77,31 @@ export const CreatePostForm: React.FC<CreatePostProps> = ({
                         placeholder='Username'
                         id='from'
                         isReadOnly={(username == undefined)? false: true}
-                        isDisabled={(username == undefined)? true: anonymousSender}
+                        isDisabled={(username == undefined)? true: ((anonymousSender == "true")? true: false )}
                         className="mb-1"
-                        onChange={handleSenderChange}
                     />
-                    <Checkbox
-                        isChecked={(username == undefined)? true: anonymousSender}
-                        isDisabled={(username == undefined)? true: false}
-                        onChange={(e) => setAnonymousSender(e.target.checked)}
-                    >
-                        Send as Anonymous
-                    </Checkbox>
+                    <RadioGroup onChange={setAnonymousSender} value={anonymousSender} isDisabled={(username == undefined)? true: false}>
+                        <Stack direction="row">
+                            <Radio value="true">Send as Anonymous</Radio>
+                            <Radio value="false">Send as Specific Sender</Radio>
+                        </Stack>
+                    </RadioGroup>
             </FormControl>
             <FormControl className='my-3'>
                 <FormLabel>To</FormLabel>
                     <Input
                         placeholder='Username'
                         id='to'
-                        isDisabled={anonymousReceiver}
+                        isDisabled={(anonymousReceiver == "true")? true: false}
                         className="mb-1"
                         onChange={handleReceiverChange}
                     />
-                    <Checkbox 
-                        onChange={(e) => setAnonymousReceiver(e.target.checked)}
-                    >
-                        Send to All
-                    </Checkbox>
+                    <RadioGroup onChange={setAnonymousReceiver} value={anonymousReceiver}>
+                        <Stack direction='row'>
+                            <Radio value="true">Send to All</Radio>
+                            <Radio value="false">Send to Specific Receiver</Radio>
+                        </Stack>
+                    </RadioGroup>
             </FormControl>
             <Center className='mb-3'>
                 <Button variant='solid' colorScheme="teal" type='submit'>
