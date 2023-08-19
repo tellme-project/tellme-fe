@@ -23,7 +23,7 @@ export default function RegisterForm (){
         const headers = {
             "Content-Type": "application/json",
           };
-        const postRegister = axios.post(`${process.env.NEXT_PUBLIC_HOST}`, data, { headers })
+        const postRegister = axios.post(`${process.env.NEXT_PUBLIC_HOST}/auth/register`, data, { headers })
 
         toast.promise(postRegister, {
             loading: "Loading...",

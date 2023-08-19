@@ -65,21 +65,12 @@ export default function Navbar (){
         }
     }
 
-    const showInbox = () => {
-        if (user == undefined) {
-            return <></>
-        } else {
-            return <a href={"/post/inbox"} className="text-lg text-black hover:text-teal-600">My Inbox</a>
-        }
-    }
-
     return(
     <nav className="bg-white shadow-lg p-3">
         <div className="flex flex-wrap items-center justify-between mx-auto p-4">
             <a href="/" className="flex items-center">
                 <span className="self-center text-3xl font-bold">Tellme</span>
             </a>
-            {showInbox()}
             <div className="hidden w-full md:block md:w-auto" id="navbar-default">
                 <ul className="flex flex-row list-none">
                     {rightSideComponents()}

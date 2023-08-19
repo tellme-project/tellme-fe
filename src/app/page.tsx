@@ -14,14 +14,37 @@ import { CreatePostForm } from "@/components/modules/post/CreatePostForm";
 
 
 export default function Home() {
+  const token = Cookies.get('token');
+  const [user, setUser] = useState<User>();
   const [fess, setFess] = useState<Post[]>();
   const [loading, setLoading] = useState(true);
   const router = useRouter()
 
+  const fetchUser = async () => {
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
+    const getUser = axios.get(`${process.env.NEXT_PUBLIC_HOST}/auth/profile`)
+
+    await getUser
+    .then((res) => {
+      setUser({
+        username: res.data.username,
+        name: res.data.name
+      })
+    })
+    .catch((err) => {
+      toast.error(err)
+    }) 
+  }
+
   useEffect(() => {
-    console.log(process.env.NEXT_PUBLIC_TEST)
     getContent()
   }, [])
+
+  useEffect(() => {
+    if(token) {
+      fetchUser()
+    }
+  })
 
   const getContent = () => {
       axios.get(`${process.env.NEXT_PUBLIC_HOST}/posts/fess`)
@@ -30,6 +53,24 @@ export default function Home() {
         setFess(res.data)
       })
       .catch((err) => {console.log(err)})
+  }
+
+  const showGreetingsAndInboxButton = () => {
+    if(user != undefined){
+      return (
+        <div className="my-4">
+          <div className="text-center text-xl">Hello, <span className="font-bold">{user.name}</span>!</div>
+          <div className="flex justify-center items-center w-screen mt-2">
+            <Button 
+              colorScheme="teal"
+              onClick={() => {router.push("/post/inbox")}}
+            >
+              Inbox
+            </Button>
+          </div>
+        </div>
+      )
+    }
   }
 
   const showContent = () => {
@@ -76,6 +117,7 @@ export default function Home() {
     <Navbar/>
     <div className="flex">
       <div>
+        {showGreetingsAndInboxButton()}
         {showContent()}
       </div>
       <div className='fixed bottom-0 w-full'>
