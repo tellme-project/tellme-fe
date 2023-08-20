@@ -9,10 +9,12 @@ export function convertIso(isoDate: string){
     const outDateTime = inpDateTime.setZone(outTZ)
 
     const resultBeforeFormat = outDateTime.toFormat('yyyy-MM-dd HH:mm:ss')
-    const hour = parseInt((resultBeforeFormat.split(' ')[1]).slice(0, 2))
-    const hourAfterAdjustment = adjustTimezone(hour)
-    const result = resultBeforeFormat.slice(0, 11) + hourAfterAdjustment + resultBeforeFormat.slice(13, 19)
-    return result + " WIB"
+
+    return resultBeforeFormat + " WIB"
+    //const hour = parseInt((resultBeforeFormat.split(' ')[1]).slice(0, 2))
+    //const hourAfterAdjustment = adjustTimezone(hour)
+    //const result = resultBeforeFormat.slice(0, 11) + hourAfterAdjustment + resultBeforeFormat.slice(13, 19)
+    //return result + " WIB"
 }
 
 function adjustTimezone(hour: number) {
