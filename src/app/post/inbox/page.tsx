@@ -95,6 +95,7 @@ export default function Inbox (){
       
     return(
         <>
+            <title>Inbox</title>
             <Navbar />
             {showContent()}
         </>
