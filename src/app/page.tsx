@@ -154,6 +154,7 @@ export default function Home() {
   
   return (
     <>
+    <title>Tellme</title>
     <Navbar/>
     <div className="flex">
       <div>

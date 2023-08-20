@@ -39,6 +39,7 @@ export default function CreatePost (){
 
     return(
         <>
+            <title>Create Post</title>
             <Navbar />
             <div className="text-3xl text-center font-bold my-5">Create New Post</div>
             <div className="mx-5 mb-5 p-5">

@@ -40,6 +40,7 @@ export default function CreateSpecificReceiverPost ({ params }: { params: { user
 
     return(
         <>
+            <title>Create Post</title>
             <Navbar />
             <div className="text-3xl text-center font-bold my-5">Send Message to {params.username}</div>
             <div className="mx-5 mb-5 p-5">
