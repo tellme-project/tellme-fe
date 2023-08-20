@@ -8,8 +8,8 @@ import { User } from "@/components/models";
 import Navbar from "@/components/modules/layout/Navbar";
 import { Post } from "@/components/models/Post";
 import { PostCard } from "@/components/modules/post/PostCard";
-import { Button, IconButton, Modal, ModalBody, ModalCloseButton, ModalContent, ModalHeader, ModalOverlay, Spinner, useDisclosure } from "@chakra-ui/react";
-import { AddIcon } from "@chakra-ui/icons";
+import { Button, IconButton, Input, InputGroup, InputLeftElement, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Spinner, useClipboard, useDisclosure } from "@chakra-ui/react";
+import { AddIcon, CopyIcon, LinkIcon } from "@chakra-ui/icons";
 import { CreatePostForm } from "@/components/modules/post/CreatePostForm";
 
 
@@ -19,6 +19,9 @@ export default function Home() {
   const [fess, setFess] = useState<Post[]>();
   const [loading, setLoading] = useState(true);
   const router = useRouter()
+  const { isOpen, onOpen, onClose } = useDisclosure()
+  const [url, setURL] = useState("");
+  const { onCopy, value, setValue, hasCopied } = useClipboard("");
 
   const fetchUser = async () => {
     axios.defaults.headers.common['Authorization'] = `Bearer ${token}`
@@ -30,6 +33,8 @@ export default function Home() {
         username: res.data.username,
         name: res.data.name
       })
+      setURL(`${process.env.NEXT_PUBLIC_FE_HOST}/post/create/${user?.username}`)
+      setValue(url)
     })
     .catch((err) => {
       toast.error(err)
@@ -58,17 +63,52 @@ export default function Home() {
   const showGreetingsAndInboxButton = () => {
     if(user != undefined){
       return (
-        <div className="my-4">
+        <>
+          <div className="my-4">
           <div className="text-center text-xl">Hello, <span className="font-bold">{user.name}</span>!</div>
           <div className="flex justify-center items-center w-screen mt-2">
-            <Button 
-              colorScheme="teal"
-              onClick={() => {router.push("/post/inbox")}}
-            >
-              Inbox
-            </Button>
+            <div className="flex flex-row">
+              <Button 
+                colorScheme="teal"
+                onClick={() => {router.push("/post/inbox")}}
+                className="mr-2"
+              >
+                Inbox
+              </Button>
+              <Button
+                colorScheme="teal"
+                className="ml-2"
+                onClick={onOpen}
+              >
+                Share Personal Message URL
+              </Button>
+            </div>
           </div>
         </div>
+        <Modal isOpen={isOpen} onClose={onClose}>
+        <ModalOverlay />
+        <ModalContent>
+          <ModalHeader>Personal Message URL</ModalHeader>
+          <ModalCloseButton />
+          <ModalBody>
+            <div className="mb-3 text-center">
+              <InputGroup className="mb-2">
+                <InputLeftElement pointerEvents='none'>
+                  <LinkIcon color='gray.300' />
+                </InputLeftElement>
+                <Input 
+                  value={url}
+                  isReadOnly={true}
+                />
+              </InputGroup>
+              <Button leftIcon={<CopyIcon />} colorScheme="teal" onClick={onCopy}>
+                {hasCopied ? "Copied!" : "Copy"}
+              </Button>
+            </div>
+          </ModalBody>
+        </ModalContent>
+        </Modal>
+        </>
       )
     }
   }

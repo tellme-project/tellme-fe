@@ -8,3 +8,8 @@ export interface PostProps {
 export interface CreatePostProps {
     username: string | undefined
 }
+
+export interface CreatePostForSpecificReceiverFormProps {
+    username: string | undefined;
+    receiver: string;
+}
